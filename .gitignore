@@ -1,0 +1,45 @@
+# Local tooling and editor state
+.ace-tool/
+.codex-screenshots/
+/.idea/
+/.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local config and logs
+*.local
+.env
+.env.*
+*.log
+tmp-*.log
+/screego.config
+/screego.config.development
+/users
+
+# Go build/test outputs
+/target/
+/dist/
+/screego
+/*.exe
+/*.test
+coverage.out
+*-packr.go
+
+# UI dependencies and build outputs
+/ui/node_modules/
+/ui/build/
+/ui/.pnp
+/ui/.pnp.*
+/ui/coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local design/reference captures
+/lantz-screego-v*.png
+/lantz-screego-verification.png
+/logo.svg
+/logo.png

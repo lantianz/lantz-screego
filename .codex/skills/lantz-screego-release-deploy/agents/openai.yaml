@@ -1,0 +1,4 @@
+interface:
+  display_name: "lantzScreego Release Deploy"
+  short_description: "Release, GHCR image, and deploy handoff"
+  default_prompt: "Use $lantz-screego-release-deploy to validate lantz-screego, publish a tag release, and provide Docker/1Panel update commands."
