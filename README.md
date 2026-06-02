@@ -45,6 +45,19 @@ ghcr.io/<github-owner>/<github-repo>:<tag>
 
 `Dockerfile` 不是独立多阶段构建文件，直接 `docker build .` 需要根目录已有 `screego` 二进制；推荐通过 GitHub Actions / GoReleaser 构建镜像。
 
+## Server Deploy
+
+服务器克隆仓库后可直接执行一键部署脚本：
+
+```bash
+git clone https://github.com/lantianz/lantz-screego.git
+cd lantz-screego
+chmod +x deploy.sh deploy/install.sh
+./deploy.sh --domain share.example.com
+```
+
+1Panel 反向代理目标为 `http://127.0.0.1:5050`，公网域名必须启用 HTTPS。更多配置见 [deploy/README.md](deploy/README.md)。
+
 ## Upstream
 
 核心服务来自 [screego/server](https://github.com/screego/server/)。配置项仍沿用 Screego 的环境变量与 `screego.config.example`。

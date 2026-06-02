@@ -12,6 +12,7 @@ Thumbs.db
 *.local
 .env
 .env.*
+/deploy/.env
 *.log
 tmp-*.log
 /screego.config
