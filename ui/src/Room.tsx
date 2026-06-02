@@ -8,7 +8,6 @@ import {
     CircleFill,
     CircleLink,
     Copy,
-    Display,
     Eraser,
     Gear,
     Globe,
@@ -169,11 +168,10 @@ export const Room = ({
         if (state.clientStreams.some(({id}) => id === selectedStream)) {
             return;
         }
-        if (state.clientStreams.length === 0 && selectedStream) {
-            setSelectedStream(undefined);
-            return;
+        const nextStream = state.hostStream ? HostStream : state.clientStreams[0]?.id;
+        if (selectedStream !== nextStream) {
+            setSelectedStream(nextStream);
         }
-        setSelectedStream(state.clientStreams[0]?.id);
     }, [state.clientStreams, selectedStream, state.hostStream]);
 
     const stream =
@@ -304,6 +302,7 @@ export const Room = ({
                                 {t('roomNumber')} {state.id}
                             </span>
                             <Button
+                                className="room-header-copy-button"
                                 isIconOnly
                                 size="sm"
                                 variant="tertiary"
@@ -401,7 +400,7 @@ export const Room = ({
                     />
                 </aside>
 
-                <section className="stage-card" aria-label={t('annotationLayer')}>
+                <section className="stage-card" aria-label={t('screenStage')}>
                     {stream ? (
                         <video
                             ref={setVideoElement}
@@ -409,13 +408,14 @@ export const Room = ({
                             onDoubleClick={handleFullscreen}
                         />
                     ) : (
-                        <EmptyStage sharing={!!state.hostStream} />
+                        <EmptyStage />
                     )}
                     <canvas
                         ref={canvasRef}
                         className="annotation-canvas"
                         style={{pointerEvents: annotationMode ? 'auto' : 'none'}}
-                        aria-label={t('annotationLayer')}
+                        aria-hidden={!annotationMode}
+                        aria-label={annotationMode ? t('annotationLayer') : undefined}
                         onPointerDown={startStroke}
                         onPointerMove={moveStroke}
                         onPointerUp={endStroke}
@@ -438,7 +438,6 @@ export const Room = ({
                             <ViewerTools
                                 selected={!!selectedStream}
                                 fullscreen={handleFullscreen}
-                                startAnnotation={() => setAnnotationMode(true)}
                                 hasAudioTrack={hasAudioTrack}
                                 muted={!!videoElement?.muted}
                                 toggleMute={() => {
@@ -606,21 +605,11 @@ const Metric = ({label, value}: {label: string; value: string}) => (
     </div>
 );
 
-const EmptyStage = ({sharing}: {sharing: boolean}) => {
+const EmptyStage = () => {
     const {t} = useI18n();
     return (
         <div className="stage-empty">
-            <div className="stage-empty-panel">
-                <div className="mx-auto mb-5 grid size-16 place-items-center rounded-md bg-accent-soft text-accent-soft-foreground">
-                    <Display />
-                </div>
-                <h2 className="text-3xl font-semibold">
-                    {sharing ? t('sharingScreen') : t('noStream')}
-                </h2>
-                <p className="mt-3 text-muted">
-                    {sharing ? t('sharingScreenHint') : t('noStreamHint')}
-                </p>
-            </div>
+            <p className="stage-empty-text">{t('noStream')}</p>
         </div>
     );
 };
@@ -628,14 +617,12 @@ const EmptyStage = ({sharing}: {sharing: boolean}) => {
 const ViewerTools = ({
     selected,
     fullscreen,
-    startAnnotation,
     hasAudioTrack,
     muted,
     toggleMute,
 }: {
     selected: boolean;
     fullscreen: () => void;
-    startAnnotation: () => void;
     hasAudioTrack: boolean;
     muted: boolean;
     toggleMute: () => void;
@@ -659,17 +646,6 @@ const ViewerTools = ({
                 </Tooltip.Trigger>
                 <Tooltip.Content>{t('fullScreen')}</Tooltip.Content>
             </Tooltip>
-            <Button
-                size="sm"
-                className="annotation-tool-button"
-                variant="secondary"
-                onPress={startAnnotation}
-                isDisabled={!selected}
-                aria-label={t('startAnnotation')}
-            >
-                <Brush />
-                <span className="annotation-tool-label">{t('startAnnotation')}</span>
-            </Button>
             {hasAudioTrack ? (
                 <Button
                     size="sm"

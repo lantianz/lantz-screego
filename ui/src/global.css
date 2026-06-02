@@ -153,8 +153,17 @@
     }
 
     .room-header-meta span {
+        flex: 1 1 auto;
+        min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    .room-header-copy-button {
+        width: 2rem;
+        min-width: 2rem;
+        height: 2rem;
+        flex: 0 0 2rem;
     }
 
     .room-header-actions {
@@ -301,13 +310,10 @@
         text-align: center;
     }
 
-    .stage-empty-panel {
-        width: min(100%, 32rem);
-        padding: clamp(1.4rem, 4vw, 2.4rem);
-        border: 1px solid color-mix(in oklch, var(--border) 76%, transparent);
-        border-radius: 0.5rem;
-        background: color-mix(in oklch, var(--surface) 74%, transparent);
-        backdrop-filter: blur(12px);
+    .stage-empty-text {
+        color: var(--muted);
+        font-size: clamp(1rem, 2vw, 1.125rem);
+        font-weight: 500;
     }
 
     .tool-dock {
@@ -468,6 +474,7 @@
         }
 
         .app-title {
+            display: none;
             font-size: 1rem;
         }
 
@@ -476,7 +483,8 @@
         }
 
         .room-header-meta {
-            max-width: 44vw;
+            max-width: min(52vw, 15rem);
+            gap: 0.35rem;
             font-size: 0.75rem;
         }
 

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 APP_NAME="lantz-screego"
-DEFAULT_VERSION="0.0.1"
+DEFAULT_VERSION="0.0.2"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 ENV_FILE="${SCRIPT_DIR}/.env"
@@ -16,7 +16,7 @@ Usage:
 Options:
   --domain DOMAIN          Public HTTPS domain, writes SCREEGO_EXTERNAL_IP=dns:DOMAIN
   --external-ip IP         Public server IP, writes SCREEGO_EXTERNAL_IP=IP
-  --version VERSION        Image version tag, default 0.0.1
+  --version VERSION        Image version tag, default 0.0.2
   --image IMAGE            Full image reference, overrides --version
   --http-host HOST         Internal HTTP listen host, default 127.0.0.1
   --http-port PORT         Internal HTTP listen port, default 5050
@@ -30,7 +30,7 @@ Examples:
   ./deploy.sh --external-ip 1.2.3.4
   LANTZ_SCREEGO_DOMAIN=share.example.com ./deploy.sh
   LANTZ_SCREEGO_EXTERNAL_IP=1.2.3.4 ./deploy.sh
-  LANTZ_SCREEGO_VERSION=0.0.1 ./deploy.sh
+  LANTZ_SCREEGO_VERSION=0.0.2 ./deploy.sh
 EOF
 }
 

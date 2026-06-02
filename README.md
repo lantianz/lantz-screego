@@ -1,6 +1,6 @@
 # Lantz Screego
 
-基于 [screego/server](https://github.com/screego/server/) 的二次开发版本，保留 Screego 的 WebRTC 屏幕共享核心和 Docker/单二进制部署路径，重做了中英文界面、交互布局和批注工具。
+基于 [screego/server](https://github.com/screego/server/) 的二次开发版本，保留 Screego 的 WebRTC 屏幕共享核心和 Docker/单二进制部署路径，重做了中英文界面和交互布局。
 
 ## Features
 
@@ -8,7 +8,6 @@
 - WebRTC 传输与内置 TURN 服务
 - 默认中文界面，支持英文切换
 - HeroUI v3 前端界面
-- 房间内画笔、橡皮、撤销和清空批注
 - 保留 Docker 镜像与单二进制发布方式
 
 ## Development
