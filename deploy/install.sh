@@ -28,6 +28,8 @@ Options:
 Examples:
   ./deploy.sh --domain share.example.com
   ./deploy.sh --external-ip 1.2.3.4
+  LANTZ_SCREEGO_DOMAIN=share.example.com ./deploy.sh
+  LANTZ_SCREEGO_EXTERNAL_IP=1.2.3.4 ./deploy.sh
   LANTZ_SCREEGO_VERSION=0.0.1 ./deploy.sh
 EOF
 }
@@ -193,24 +195,24 @@ done
 require_command docker
 COMPOSE_KIND="$(detect_compose)"
 
-if [ -z "${IMAGE}" ]; then
-  IMAGE="ghcr.io/lantianz/lantz-screego:${VERSION}"
-fi
-
-if [ -z "${DOMAIN}" ] && [ -z "${EXTERNAL_IP}" ]; then
-  EXTERNAL_IP="$(detect_public_ip)"
-fi
-
-if [ -n "${DOMAIN}" ]; then
-  SCREEGO_PUBLIC_IP="dns:${DOMAIN}"
-elif [ -n "${EXTERNAL_IP}" ]; then
-  SCREEGO_PUBLIC_IP="${EXTERNAL_IP}"
-else
-  echo "Could not detect public IP. Re-run with --domain DOMAIN or --external-ip IP." >&2
-  exit 1
-fi
-
 if [ ! -f "${ENV_FILE}" ]; then
+  if [ -z "${IMAGE}" ]; then
+    IMAGE="ghcr.io/lantianz/lantz-screego:${VERSION}"
+  fi
+
+  if [ -z "${DOMAIN}" ] && [ -z "${EXTERNAL_IP}" ]; then
+    EXTERNAL_IP="$(detect_public_ip)"
+  fi
+
+  if [ -n "${DOMAIN}" ]; then
+    SCREEGO_PUBLIC_IP="dns:${DOMAIN}"
+  elif [ -n "${EXTERNAL_IP}" ]; then
+    SCREEGO_PUBLIC_IP="${EXTERNAL_IP}"
+  else
+    echo "Could not detect public IP. Re-run with --domain DOMAIN or --external-ip IP." >&2
+    exit 1
+  fi
+
   umask 077
   write_env "LANTZ_SCREEGO_IMAGE" "${IMAGE}"
   write_env "LANTZ_SCREEGO_VERSION" "${VERSION}"
@@ -228,7 +230,7 @@ if [ ! -f "${ENV_FILE}" ]; then
   echo "Created ${ENV_FILE}"
 else
   echo "Using existing ${ENV_FILE}"
-  echo "To change domain/IP/image, edit this file or remove it and run deploy again."
+  echo "Edit this file to change domain, IP, image, ports, or auth mode."
 fi
 
 cd "${PROJECT_DIR}"

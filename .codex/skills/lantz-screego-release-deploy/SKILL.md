@@ -83,18 +83,21 @@ Give the user commands with the exact released version and actual server path/im
 cd /opt/1panel/apps/lantz-screego/lantz-screego
 
 git pull --ff-only
-
-sed -i 's#^LANTZ_SCREEGO_IMAGE=.*#LANTZ_SCREEGO_IMAGE=ghcr.io/<github-owner>/<github-repo>:X.Y.Z#' .env
-sed -i 's#^LANTZ_SCREEGO_VERSION=.*#LANTZ_SCREEGO_VERSION=X.Y.Z#' .env
-
-docker compose pull
-docker compose up -d
+./deploy.sh
 
 curl http://127.0.0.1:<app-port>/health
 curl -s http://127.0.0.1:<app-port>/ | head -40
 ```
 
 Expected health response includes `"status":"up"`. The public entry should return the frontend HTML, not a placeholder response.
+
+For first deployment, initialize `deploy/.env` with environment variables:
+
+```bash
+LANTZ_SCREEGO_DOMAIN=<public-domain> ./deploy.sh
+```
+
+Or use `LANTZ_SCREEGO_EXTERNAL_IP=<public-ip> ./deploy.sh` when no domain is available. Existing `deploy/.env` is the server-side source of truth for image, version, domain/IP, ports, and auth mode.
 
 ## Guardrails
 

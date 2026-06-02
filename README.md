@@ -53,7 +53,7 @@ ghcr.io/<github-owner>/<github-repo>:<tag>
 git clone https://github.com/lantianz/lantz-screego.git
 cd lantz-screego
 chmod +x deploy.sh deploy/install.sh
-./deploy.sh --domain share.example.com
+LANTZ_SCREEGO_DOMAIN=share.example.com ./deploy.sh
 ```
 
 1Panel 反向代理目标为 `http://127.0.0.1:5050`，公网域名必须启用 HTTPS。更多配置见 [deploy/README.md](deploy/README.md)。
