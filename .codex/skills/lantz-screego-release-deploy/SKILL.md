@@ -80,7 +80,7 @@ Expected GoReleaser image tags include:
 Give the user commands with the exact released version and actual server path/image once known. Use placeholders only when the repository owner or server path is not confirmed.
 
 ```bash
-cd /opt/1panel/apps/lantz-screego/lantz-screego
+cd /opt/1panel/apps/lantz-screego
 
 git pull --ff-only
 ./deploy.sh

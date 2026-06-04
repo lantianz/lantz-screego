@@ -5,17 +5,19 @@ import {useI18n} from './i18n';
 export interface NumberFieldProps {
     value: number;
     min: number;
+    max?: number;
     label: string;
     onChange: (value: number) => void;
 }
 
-export const NumberField = ({value, min, label, onChange}: NumberFieldProps) => {
+export const NumberField = ({value, min, max, label, onChange}: NumberFieldProps) => {
     const {t} = useI18n();
     const [error, setError] = React.useState('');
 
     return (
         <HeroNumberField
             minValue={min}
+            maxValue={max}
             value={value}
             onChange={(nextValue) => {
                 if (typeof nextValue !== 'number' || Number.isNaN(nextValue)) {
@@ -24,6 +26,10 @@ export const NumberField = ({value, min, label, onChange}: NumberFieldProps) => 
                 }
                 if (nextValue < min) {
                     setError(t('minNumber', {min}));
+                    return;
+                }
+                if (typeof max === 'number' && nextValue > max) {
+                    setError(t('maxNumber', {max}));
                     return;
                 }
                 setError('');

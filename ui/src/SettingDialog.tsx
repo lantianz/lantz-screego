@@ -8,6 +8,8 @@ import {
     loadSettings,
     PreferredCodec,
     Settings,
+    ShareQualityMode,
+    shareQualityModeKey,
     VideoDisplayMode,
     videoDisplayModeKey,
 } from './settings';
@@ -53,7 +55,7 @@ export const SettingDialog = ({open, setOpen, updateName, saveSettings}: Setting
         setOpen(false);
     };
 
-    const {preferCodec, displayMode, framerate} = settingsInput;
+    const {preferCodec, displayMode, framerate, shareQuality} = settingsInput;
 
     return (
         <Modal isOpen={open} onOpenChange={setOpen}>
@@ -136,9 +138,37 @@ export const SettingDialog = ({open, setOpen, updateName, saveSettings}: Setting
                                     </ListBox>
                                 </Select.Popover>
                             </Select>
+                            <Select
+                                selectedKey={shareQuality}
+                                onSelectionChange={(key) =>
+                                    setSettingsInput((current) => ({
+                                        ...current,
+                                        shareQuality:
+                                            typeof key === 'string'
+                                                ? (key as ShareQualityMode)
+                                                : ShareQualityMode.Balanced,
+                                    }))
+                                }
+                            >
+                                <Label>{t('shareQuality')}</Label>
+                                <Select.Trigger>
+                                    <Select.Value />
+                                    <Select.Indicator />
+                                </Select.Trigger>
+                                <Select.Popover>
+                                    <ListBox>
+                                        {Object.values(ShareQualityMode).map((mode) => (
+                                            <ListBox.Item key={mode} id={mode}>
+                                                {t(shareQualityModeKey(mode))}
+                                            </ListBox.Item>
+                                        ))}
+                                    </ListBox>
+                                </Select.Popover>
+                            </Select>
                             <NumberField
                                 label={t('frameRate')}
                                 min={1}
+                                max={60}
                                 onChange={(nextFramerate) =>
                                     setSettingsInput((current) => ({
                                         ...current,

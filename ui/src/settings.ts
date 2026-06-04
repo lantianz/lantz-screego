@@ -54,6 +54,7 @@ export interface Settings {
     displayMode: VideoDisplayMode;
     preferCodec?: PreferredCodec;
     framerate: number;
+    shareQuality: ShareQualityMode;
 }
 export interface PreferredCodec {
     mimeType: string;
@@ -67,24 +68,83 @@ export enum VideoDisplayMode {
     OriginalSize = 'OriginalSize',
 }
 
+export enum ShareQualityMode {
+    Smooth = 'Smooth',
+    Balanced = 'Balanced',
+    Sharp = 'Sharp',
+}
+
+export interface ShareQualityProfile {
+    key: TranslationKey;
+    contentHint: 'motion' | 'detail';
+    degradationPreference: RTCDegradationPreference;
+    maxBitrate: number;
+    maxHeight: number;
+    maxWidth: number;
+}
+
+export const shareQualityProfiles: Record<ShareQualityMode, ShareQualityProfile> = {
+    [ShareQualityMode.Smooth]: {
+        key: 'qualitySmooth',
+        contentHint: 'motion',
+        degradationPreference: 'maintain-framerate',
+        maxBitrate: 2_000_000,
+        maxHeight: 720,
+        maxWidth: 1280,
+    },
+    [ShareQualityMode.Balanced]: {
+        key: 'qualityBalanced',
+        contentHint: 'detail',
+        degradationPreference: 'balanced',
+        maxBitrate: 5_000_000,
+        maxHeight: 1080,
+        maxWidth: 1920,
+    },
+    [ShareQualityMode.Sharp]: {
+        key: 'qualitySharp',
+        contentHint: 'detail',
+        degradationPreference: 'maintain-resolution',
+        maxBitrate: 9_000_000,
+        maxHeight: 1440,
+        maxWidth: 2560,
+    },
+};
+
+export const shareQualityModeKey = (mode: ShareQualityMode): TranslationKey =>
+    shareQualityProfiles[mode].key;
+
 const SettingsKey = 'screegoSettings';
+const minFrameRate = 1;
+const maxFrameRate = 60;
+const defaultFrameRate = 20;
+
+export const normalizeFrameRate = (value: unknown): number => {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+        return defaultFrameRate;
+    }
+    return Math.min(Math.max(Math.round(value), minFrameRate), maxFrameRate);
+};
 
 export const loadSettings = (): Settings => {
     const settings: Partial<Settings> = JSON.parse(localStorage.getItem(SettingsKey) ?? '{}') ?? {};
 
     const defaults: Settings = {
         displayMode: VideoDisplayMode.FitToWindow,
-        framerate: 30,
+        framerate: defaultFrameRate,
+        shareQuality: ShareQualityMode.Balanced,
     };
 
     if (settings && typeof settings === 'object') {
         return {
             name: settings.name?.toString(),
-            framerate: settings.framerate ?? defaults.framerate,
+            framerate: normalizeFrameRate(settings.framerate ?? defaults.framerate),
             displayMode:
                 Object.values(VideoDisplayMode).find((mode) => mode === settings.displayMode) ??
                 defaults.displayMode,
             preferCodec: settings.preferCodec ?? CodecDefault,
+            shareQuality:
+                Object.values(ShareQualityMode).find((mode) => mode === settings.shareQuality) ??
+                defaults.shareQuality,
         };
     }
     return defaults;

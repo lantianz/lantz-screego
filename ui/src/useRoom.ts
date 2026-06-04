@@ -9,7 +9,7 @@ import {
     RoomInfo,
     UIConfig,
 } from './message';
-import {loadSettings, resolveCodecPlaceholder} from './settings';
+import {loadSettings, resolveCodecPlaceholder, shareQualityProfiles} from './settings';
 import {urlWithSlash} from './url';
 import {authModeToRoomMode} from './useConfig';
 import {getFromURL, useRoomID} from './useRoomID';
@@ -73,6 +73,8 @@ const hostSession = async ({
     stream: MediaStream;
 }): Promise<RTCPeerConnection> => {
     const peer = new RTCPeerConnection({...relayConfig, iceServers: ice});
+    const settings = loadSettings();
+    const qualityProfile = shareQualityProfiles[settings.shareQuality];
     peer.onicecandidate = (event) => {
         if (!event.candidate) {
             return;
@@ -93,8 +95,9 @@ const hostSession = async ({
     };
 
     stream.getTracks().forEach((track) => peer.addTrack(track, stream));
+    await applySenderQuality(peer, stream, qualityProfile);
 
-    const preferCodec = resolveCodecPlaceholder(loadSettings().preferCodec);
+    const preferCodec = resolveCodecPlaceholder(settings.preferCodec);
     if (preferCodec) {
         const transceiver = peer
             .getTransceivers()
@@ -129,6 +132,32 @@ const hostSession = async ({
     send({type: 'hostoffer', payload: {value: hostOffer, sid: sid}});
 
     return peer;
+};
+
+const applySenderQuality = async (
+    peer: RTCPeerConnection,
+    stream: MediaStream,
+    qualityProfile: (typeof shareQualityProfiles)[keyof typeof shareQualityProfiles]
+) => {
+    const videoTrack = stream.getVideoTracks()[0];
+    const sender = peer.getSenders().find((current) => current.track === videoTrack);
+    if (!sender || typeof sender.getParameters !== 'function') {
+        return;
+    }
+
+    const parameters = sender.getParameters();
+    parameters.encodings = parameters.encodings?.length ? parameters.encodings : [{}];
+    parameters.encodings[0] = {
+        ...parameters.encodings[0],
+        maxBitrate: qualityProfile.maxBitrate,
+    };
+    parameters.degradationPreference = qualityProfile.degradationPreference;
+
+    try {
+        await sender.setParameters(parameters);
+    } catch (err) {
+        console.log('Could not apply sender quality settings', err);
+    }
 };
 
 const clientSession = async ({
@@ -401,8 +430,14 @@ export const useRoom = (config: UIConfig): UseRoom => {
             return;
         }
         try {
+            const settings = loadSettings();
+            const qualityProfile = shareQualityProfiles[settings.shareQuality];
             stream.current = await navigator.mediaDevices.getDisplayMedia({
-                video: {frameRate: loadSettings().framerate},
+                video: {
+                    frameRate: {ideal: settings.framerate, max: settings.framerate},
+                    height: {ideal: qualityProfile.maxHeight, max: qualityProfile.maxHeight},
+                    width: {ideal: qualityProfile.maxWidth, max: qualityProfile.maxWidth},
+                },
                 audio: {
                     echoCancellation: false,
                     autoGainControl: false,
@@ -411,6 +446,9 @@ export const useRoom = (config: UIConfig): UseRoom => {
                     // @ts-expect-error
                     googAutoGainControl: false,
                 },
+            });
+            stream.current.getVideoTracks().forEach((track) => {
+                track.contentHint = qualityProfile.contentHint;
             });
         } catch (e) {
             console.log('Could not getDisplayMedia', e);
